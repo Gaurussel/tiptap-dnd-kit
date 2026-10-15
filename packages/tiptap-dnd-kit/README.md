@@ -94,3 +94,7 @@ to it, sizes the text gap and adds the shift transition (no animation with `feat
 - Text cannot be dragged out to other applications: native drag-and-drop inside the editor is replaced.
 - With a shared `manager`, remove the `PreventSelection` plugin from it: it clears the DOM selection on every
   `selectionchange`, which makes the selection highlight blink.
+
+## License
+
+[MIT](LICENSE)

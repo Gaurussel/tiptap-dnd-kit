@@ -10,6 +10,7 @@
         "editor",
         "react"
     ],
+    "license": "MIT",
     "homepage": "https://github.com/Gaurussel/tiptap-dnd-kit#readme",
     "bugs": "https://github.com/Gaurussel/tiptap-dnd-kit/issues",
     "repository": {

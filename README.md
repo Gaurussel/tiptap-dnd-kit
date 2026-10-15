@@ -133,3 +133,7 @@ and create a GitHub release; an unchanged version skips publishing.
 |---|---|
 | [`packages/tiptap-dnd-kit`](packages/tiptap-dnd-kit) | the library: core extension and controller, React hooks |
 | [`examples/react`](examples/react) | the demo app, built only on the public API, plus the e2e suite |
+
+## License
+
+[MIT](LICENSE)
