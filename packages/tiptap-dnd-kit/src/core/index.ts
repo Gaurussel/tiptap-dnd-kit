@@ -1,0 +1,5 @@
+export { defaultClasses, defaultFeatures } from './defaults'
+export { DndKit } from './extension'
+export type { EditorDragMeta, EditorDragState } from './state'
+export { dndKitPluginKey, getDragState } from './state'
+export type * from './types'

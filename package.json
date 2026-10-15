@@ -1,0 +1,21 @@
+{
+    "name": "tiptap-dnd-kit-workspace",
+    "private": true,
+    "type": "module",
+    "workspaces": [
+        "packages/*",
+        "examples/*"
+    ],
+    "scripts": {
+        "build": "cd packages/tiptap-dnd-kit && npm run build",
+        "test": "cd packages/tiptap-dnd-kit && npm run test",
+        "dev": "cd examples/react && npm run dev",
+        "e2e": "cd examples/react && npm run e2e",
+        "lint": "biome check .",
+        "format": "biome format --write .",
+        "check": "biome check --write ."
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.5.15"
+    }
+}
