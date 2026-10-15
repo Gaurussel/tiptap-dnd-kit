@@ -6,7 +6,7 @@ export const content = `
   <li><p>Second item</p></li>
 </ul>
 <blockquote><p>A quote is a block too.</p></blockquote>
-<img src="/sample.svg" alt="Sample image">
+<img src="${import.meta.env.BASE_URL}sample.svg" alt="Sample image">
 <p>Another paragraph with <strong>bold</strong> and <em>italic</em> text.</p>
 <pre><code>const code = 'a code block'</code></pre>
 <h3>Second heading</h3>

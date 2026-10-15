@@ -1,0 +1,144 @@
+name: CI
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+    workflow_dispatch:
+
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+    contents: read
+
+env:
+    NODE_VERSION: 24
+
+jobs:
+    unit:
+        name: Lint, typecheck, unit tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: npm
+            - run: npm ci
+            - run: npm run lint
+            - run: npm run typecheck -w tiptap-dnd-kit
+            - run: npm run typecheck -w example-react
+            - run: npm test
+
+    e2e:
+        name: E2E tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: npm
+            - run: npm ci
+            - run: npx playwright install --with-deps chromium
+              working-directory: examples/react
+            - run: npm run e2e
+            - if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: playwright-report
+                  path: examples/react/playwright-report
+                  retention-days: 7
+
+    build:
+        name: Build
+        needs: [unit, e2e]
+        runs-on: ubuntu-latest
+        outputs:
+            name: ${{ steps.pack.outputs.name }}
+            version: ${{ steps.pack.outputs.version }}
+            tarball: ${{ steps.pack.outputs.tarball }}
+        steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: npm
+            - run: npm ci
+            - run: npm run build
+            - id: pack
+              working-directory: packages/tiptap-dnd-kit
+              run: |
+                  tarball=$(npm pack --silent)
+                  echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+                  echo "name=$(node -p "require('./package.json').name")" >> "$GITHUB_OUTPUT"
+                  echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+            - uses: actions/upload-artifact@v7
+              with:
+                  name: package
+                  path: packages/tiptap-dnd-kit/${{ steps.pack.outputs.tarball }}
+                  retention-days: 7
+            - run: npm run build -w example-react -- --base=/${{ github.event.repository.name }}/
+            - if: github.event_name == 'push'
+              uses: actions/upload-pages-artifact@v5
+              with:
+                  path: examples/react/dist
+
+    publish:
+        name: Publish to npm
+        needs: build
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        environment:
+            name: npm
+            url: https://www.npmjs.com/package/${{ needs.build.outputs.name }}
+        permissions:
+            contents: write
+            id-token: write
+        steps:
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  registry-url: https://registry.npmjs.org
+            - id: check
+              env:
+                  SPEC: ${{ needs.build.outputs.name }}@${{ needs.build.outputs.version }}
+              run: |
+                  if npm view "$SPEC" version 2>/dev/null | grep -q .; then
+                      echo "$SPEC is already on npm, skipping"
+                      echo "skip=true" >> "$GITHUB_OUTPUT"
+                  fi
+            - if: steps.check.outputs.skip != 'true'
+              uses: actions/download-artifact@v8
+              with:
+                  name: package
+            # npm prefers trusted publishing (OIDC) and falls back to the token, needed only for the very first release
+            - if: steps.check.outputs.skip != 'true'
+              run: npm publish "./${{ needs.build.outputs.tarball }}" --access public --provenance
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - if: steps.check.outputs.skip != 'true'
+              run: gh release create "v$VERSION" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "v$VERSION" --generate-notes
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  VERSION: ${{ needs.build.outputs.version }}
+
+    pages:
+        name: Deploy demo to GitHub Pages
+        needs: build
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        concurrency:
+            group: pages
+            cancel-in-progress: false
+        environment:
+            name: github-pages
+            url: ${{ steps.deploy.outputs.page_url }}
+        permissions:
+            pages: write
+            id-token: write
+        steps:
+            - id: deploy
+              uses: actions/deploy-pages@v5

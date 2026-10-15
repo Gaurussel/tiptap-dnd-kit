@@ -6,6 +6,11 @@
 </p>
 
 <p align="center">
+  <a href="https://gaurussel.github.io/tiptap-dnd-kit/"><b>Live demo</b></a> ·
+  <a href="https://www.npmjs.com/package/tiptap-dnd-kit">npm</a>
+</p>
+
+<p align="center">
   <img src=".github/demo.gif" alt="Dragging a block by its handle and moving a word between paragraphs" width="640" />
 </p>
 
@@ -117,6 +122,10 @@ npm run e2e     # end-to-end tests in Chromium (Playwright)
 npm run build   # build the package
 npm run lint    # Biome
 ```
+
+Every push to `master` runs lint, unit and e2e tests, builds the package and deploys the demo to GitHub Pages.
+Bump `version` in [`packages/tiptap-dnd-kit/package.json`](packages/tiptap-dnd-kit/package.json) to publish it to npm
+and create a GitHub release; an unchanged version skips publishing.
 
 | Path | Contents |
 |---|---|
