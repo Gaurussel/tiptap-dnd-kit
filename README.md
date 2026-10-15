@@ -11,7 +11,9 @@
 </p>
 
 <p align="center">
-  <img src=".github/demo.gif" alt="Dragging a block by its handle and moving a word between paragraphs" width="640" />
+  <a href="https://gaurussel.github.io/tiptap-dnd-kit/">
+    <img src=".github/demo.gif" alt="Dragging a block by its handle and moving a word between paragraphs" width="640" />
+  </a>
 </p>
 
 ## Features

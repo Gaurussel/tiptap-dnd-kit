@@ -6,6 +6,8 @@ selected text and nodes, images and other atoms. Neighbouring blocks make room, 
 up automatically and blocks can be dropped into lists. dnd-kit never touches the editor DOM: everything shown inside
 the editor is a ProseMirror decoration.
 
+**[Live demo](https://gaurussel.github.io/tiptap-dnd-kit/)** · [GitHub](https://github.com/Gaurussel/tiptap-dnd-kit)
+
 ## Install
 
 ```bash
